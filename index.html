@@ -1,1 +1,223 @@
-ي لمشروع AQX Market، نبدأ به واجهة المنصة ونبني عليه
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#6d45b8">
+  <title>AQX Market | سوق القُرمانكس</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f8fc;
+      color: #25213a;
+    }
+
+    header {
+      background: #fff;
+      padding: 18px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    .logo {
+      color: #6d45b8;
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: #514b64;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 14px;
+    }
+
+    .hero {
+      padding: 75px 7%;
+      text-align: center;
+      background: linear-gradient(135deg, #eee8fa, #e4f3ff);
+    }
+
+    .hero h1 {
+      font-size: 38px;
+      margin-bottom: 15px;
+      color: #493078;
+    }
+
+    .hero p {
+      color: #625b70;
+      line-height: 1.8;
+      margin-bottom: 25px;
+    }
+
+    .search {
+      max-width: 600px;
+      margin: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    .search input {
+      flex: 1;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    button {
+      background: #6d45b8;
+      color: white;
+      border: 0;
+      padding: 14px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    main {
+      padding: 45px 7%;
+    }
+
+    .section-title {
+      margin-bottom: 25px;
+      font-size: 24px;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+
+    .category {
+      background: white;
+      border-radius: 14px;
+      padding: 25px 15px;
+      text-align: center;
+      border: 1px solid #eee;
+    }
+
+    .category span {
+      display: block;
+      font-size: 30px;
+      margin-bottom: 12px;
+    }
+
+    .status {
+      margin-top: 35px;
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      border-right: 4px solid #6d45b8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #777;
+      background: white;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .search {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">AQX MARKET</div>
+    <nav>
+      <a href="/">الرئيسية</a>
+      <a href="#categories">الأقسام</a>
+      <a href="#about">عن السوق</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>مرحباً بك في AQX Market</h1>
+    <p>
+      سوقك الإلكتروني الموحد للتسوق والمنتجات والخدمات.
+      <br>
+      منصة واحدة تجمع احتياجاتك في مكان واحد.
+    </p>
+
+    <div class="search">
+      <input type="search" placeholder="ابحث عن منتج أو خدمة...">
+      <button onclick="alert('البحث قيد التطوير')">بحث</button>
+    </div>
+  </section>
+
+  <main>
+    <h2 class="section-title" id="categories">أقسام السوق</h2>
+
+    <div class="categories">
+      <div class="category">
+        <span>🛒</span>
+        المنتجات
+      </div>
+
+      <div class="category">
+        <span>🏪</span>
+        المتاجر
+      </div>
+
+      <div class="category">
+        <span>🏗️</span>
+        مواد البناء
+      </div>
+
+      <div class="category">
+        <span>📱</span>
+        الإلكترونيات
+      </div>
+
+      <div class="category">
+        <span>👕</span>
+        الملابس
+      </div>
+
+      <div class="category">
+        <span>🚚</span>
+        الخدمات
+      </div>
+    </div>
+
+    <section class="status" id="about">
+      <h2>منظومة AQX</h2>
+      <p>
+        هذه نسخة تأسيسية مؤقتة لمنصة AQX Market.
+        سيتم تطوير المتجر والمنتجات والطلبات والمخزون
+        ولوحة الإدارة والتكامل المالي في المراحل التالية.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 AQX Market — All Rights Reserved
+  </footer>
+
+</body>
+</html>
