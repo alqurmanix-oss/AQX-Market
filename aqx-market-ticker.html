@@ -1,1 +1,605 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>AQX Live Market Ticker</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f7f5fa;
+      color: #241a33;
+      font-family: Tahoma, Arial, sans-serif;
+    }
+
+    .aqx-widget {
+      width: 100%;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #e9e2f5;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(54,32,92,.06);
+    }
+
+    .aqx-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid #eee8f5;
+      background: linear-gradient(90deg,#fff,#faf7ff);
+    }
+
+    .aqx-title {
+      color: #57269a;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .aqx-brand {
+      color: #9584a8;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .aqx-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .aqx-refresh {
+      border: 1px solid #e3d6f5;
+      background: #f7f1ff;
+      color: #6028a8;
+      padding: 8px 13px;
+      border-radius: 9px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .aqx-refresh:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .aqx-status {
+      font-size: 11px;
+      color: #82768e;
+    }
+
+    .aqx-status.error {
+      color: #b66b24;
+    }
+
+    .aqx-status.ok {
+      color: #16865a;
+    }
+
+    .aqx-viewport {
+      width: 100%;
+      overflow: hidden;
+      padding: 15px 0;
+      direction: ltr;
+    }
+
+    .aqx-track {
+      display: flex;
+      width: max-content;
+      animation: aqx-scroll 55s linear infinite;
+    }
+
+    .aqx-widget:hover .aqx-track {
+      animation-play-state: paused;
+    }
+
+    .aqx-card {
+      min-width: 175px;
+      padding: 8px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      direction: rtl;
+      border-left: 1px solid #eee8f5;
+    }
+
+    .aqx-card-name {
+      font-size: 12px;
+      color: #81738f;
+      white-space: nowrap;
+    }
+
+    .aqx-card-price {
+      font-size: 17px;
+      font-weight: 800;
+      color: #292039;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .aqx-card-unit {
+      font-size: 10px;
+      color: #a196ad;
+      white-space: nowrap;
+    }
+
+    .aqx-card.stale .aqx-card-price {
+      color: #a66d2a;
+    }
+
+    .aqx-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 15px;
+      background: #fcfbfe;
+      border-top: 1px solid #eee8f5;
+      font-size: 10px;
+      color: #91869b;
+    }
+
+    .aqx-live-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #18a36a;
+      margin-left: 5px;
+    }
+
+    .aqx-footer a {
+      color: #652bb0;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    @keyframes aqx-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    @media(max-width:600px) {
+      body {
+        padding: 8px;
+      }
+
+      .aqx-header {
+        padding: 11px;
+      }
+
+      .aqx-card {
+        min-width: 145px;
+        padding: 7px 13px;
+      }
+
+      .aqx-card-price {
+        font-size: 15px;
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      .aqx-track {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<section class="aqx-widget" id="aqx-widget">
+
+  <header class="aqx-header">
+    <div>
+      <div class="aqx-title">
+        أسعار العملات والذهب والفضة
+      </div>
+      <div class="aqx-brand">
+        AQX GLOBAL MARKET DATA
+      </div>
+    </div>
+
+    <div class="aqx-controls">
+      <span class="aqx-status" id="aqx-status">
+        جارٍ الاتصال بمحرك AQX...
+      </span>
+
+      <button class="aqx-refresh"
+              id="aqx-refresh"
+              type="button">
+        تحديث الآن
+      </button>
+    </div>
+  </header>
+
+  <div class="aqx-viewport">
+    <div class="aqx-track" id="aqx-track">
+      <div class="aqx-card">
+        <span class="aqx-card-name">تحميل الأسعار</span>
+        <span class="aqx-card-price">...</span>
+        <span class="aqx-card-unit">AQX Market Data</span>
+      </div>
+    </div>
+  </div>
+
+  <footer class="aqx-footer">
+    <span>
+      <i class="aqx-live-dot"></i>
+      <span id="aqx-last-update">في انتظار البيانات</span>
+    </span>
+
+    <span>
+      أسعار استرشادية وليست أسعار تنفيذ أو بيع تجزئة
+    </span>
+
+    <a href="https://alqurmanix.com"
+       target="_blank"
+       rel="noopener">
+      AQX
+    </a>
+  </footer>
+
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================
+     AQX CENTRAL MARKET DATA
+  ===================================== */
+
+  const API =
+    "https://fkiokwwztbyztleeuwks.supabase.co/functions/v1/aqx-market-data/v1/quotes";
+
+  const DISPLAY_CURRENCY = "EGP";
+
+  // تحديث واجهة الشريط كل 60 ثانية
+  const REFRESH_INTERVAL = 60 * 1000;
+
+  // بيانات المصدر القديمة لا تُخفى،
+  // بل تظل ظاهرة مع تمييزها بأنها قديمة.
+  const CURRENCY_STALE_MINUTES = 24 * 60;
+  const METAL_STALE_MINUTES = 30;
+
+  const CURRENCY_NAMES = {
+    "AED": "الدرهم الإماراتي",
+    "AUD": "الدولار الأسترالي",
+    "BHD": "الدينار البحريني",
+    "BRL": "الريال البرازيلي",
+    "CAD": "الدولار الكندي",
+    "CHF": "الفرنك السويسري",
+    "CNY": "اليوان الصيني",
+    "DKK": "الكرونة الدنماركية",
+    "EGP": "الجنيه المصري",
+    "EUR": "اليورو",
+    "GBP": "الجنيه الإسترليني",
+    "HKD": "دولار هونغ كونغ",
+    "INR": "الروبية الهندية",
+    "JOD": "الدينار الأردني",
+    "JPY": "الين الياباني",
+    "KWD": "الدينار الكويتي",
+    "OMR": "الريال العماني",
+    "QAR": "الريال القطري",
+    "SAR": "الريال السعودي",
+    "USD": "الدولار الأمريكي",
+    "TRY": "الليرة التركية",
+    "ZAR": "الراند الجنوب أفريقي",
+    "SEK": "الكرونة السويدية",
+    "NOK": "الكرونة النرويجية",
+    "NZD": "الدولار النيوزيلندي",
+    "SGD": "الدولار السنغافوري",
+    "RUB": "الروبل الروسي",
+    "MXN": "البيزو المكسيكي",
+    "KRW": "الوون الكوري",
+    "IDR": "الروبية الإندونيسية",
+    "MYR": "الرينغيت الماليزي",
+    "PHP": "البيزو الفلبيني",
+    "PKR": "الروبية الباكستانية",
+    "PLN": "الزلوتي البولندي",
+    "THB": "البات التايلاندي",
+    "TWD": "الدولار التايواني",
+    "BDT": "التاكا البنغلاديشية",
+    "CZK": "الكورونا التشيكية",
+    "HUF": "الفورنت المجري",
+    "ILS": "الشيكل الإسرائيلي"
+  };
+
+  const METAL_NAMES = {
+    "XAU_24_EGP_G": "الذهب عيار 24",
+    "XAU_22_EGP_G": "الذهب عيار 22",
+    "XAU_21_EGP_G": "الذهب عيار 21",
+    "XAU_18_EGP_G": "الذهب عيار 18",
+    "XAU_14_EGP_G": "الذهب عيار 14",
+    "XAU_EGP_G": "الذهب - جرام مرجعي",
+    "XAU_EGP_OZ": "الذهب - الأونصة",
+    "XAU_USD_OZ": "الذهب - الأونصة بالدولار",
+
+    "XAG_999_EGP_G": "الفضة عيار 999",
+    "XAG_958_EGP_G": "الفضة عيار 958",
+    "XAG_925_EGP_G": "الفضة عيار 925",
+    "XAG_900_EGP_G": "الفضة عيار 900",
+    "XAG_EGP_G": "الفضة - جرام مرجعي",
+    "XAG_EGP_OZ": "الفضة - الأونصة",
+    "XAG_USD_OZ": "الفضة - الأونصة بالدولار"
+  };
+
+  const track = document.getElementById("aqx-track");
+  const status = document.getElementById("aqx-status");
+  const lastUpdate = document.getElementById("aqx-last-update");
+  const refreshButton = document.getElementById("aqx-refresh");
+
+  let lastSuccessfulRows = [];
+  let isLoading = false;
+
+  function formatNumber(value) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+      return "غير متاح";
+    }
+
+    return new Intl.NumberFormat("ar-EG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: number < 1 ? 5 : 2
+    }).format(number);
+  }
+
+  function getName(row) {
+    if (row.asset_type === "currency") {
+      const code = row.base_currency || row.symbol.split("/")[0];
+
+      return CURRENCY_NAMES[code] ||
+        ("عملة " + code);
+    }
+
+    return METAL_NAMES[row.symbol] || row.symbol;
+  }
+
+  function getUnit(row) {
+    if (row.asset_type === "currency") {
+      return "لكل 1 " + row.base_currency +
+        " · " + DISPLAY_CURRENCY;
+    }
+
+    return row.display_unit ||
+      row.unit ||
+      DISPLAY_CURRENCY;
+  }
+
+  function isStale(row) {
+    if (!row.source_updated_at) {
+      return true;
+    }
+
+    const sourceDate = new Date(row.source_updated_at);
+
+    if (Number.isNaN(sourceDate.getTime())) {
+      return true;
+    }
+
+    const ageMinutes =
+      (Date.now() - sourceDate.getTime()) / 60000;
+
+    const limit = row.asset_type === "metal"
+      ? METAL_STALE_MINUTES
+      : CURRENCY_STALE_MINUTES;
+
+    return ageMinutes > limit;
+  }
+
+  function createCard(row) {
+    const card = document.createElement("div");
+    card.className = "aqx-card";
+
+    const name = document.createElement("span");
+    name.className = "aqx-card-name";
+    name.textContent = getName(row);
+
+    const price = document.createElement("span");
+    price.className = "aqx-card-price";
+    price.textContent =
+      formatNumber(row.display_price) +
+      " " + (row.display_currency || DISPLAY_CURRENCY);
+
+    const unit = document.createElement("span");
+    unit.className = "aqx-card-unit";
+
+    const sourceDate = row.source_updated_at
+      ? new Date(row.source_updated_at)
+      : null;
+
+    const sourceTime =
+      sourceDate && !Number.isNaN(sourceDate.getTime())
+        ? sourceDate.toLocaleString("ar-EG")
+        : "وقت المصدر غير متاح";
+
+    unit.textContent =
+      getUnit(row) + " · " + sourceTime;
+
+    if (isStale(row)) {
+      card.classList.add("stale");
+      unit.textContent =
+        "بيانات قديمة · " + unit.textContent;
+    }
+
+    card.append(name, price, unit);
+
+    return card;
+  }
+
+  function render(rows) {
+    const validRows = rows.filter(row =>
+      (row.asset_type === "currency" ||
+       row.asset_type === "metal") &&
+      row.display_price !== null &&
+      Number.isFinite(Number(row.display_price))
+    );
+
+    if (!validRows.length) {
+      throw new Error("NO_VALID_MARKET_QUOTES");
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    validRows.forEach(row => {
+      fragment.appendChild(createCard(row));
+    });
+
+    // تكرار البطاقات لعمل حركة مستمرة
+    validRows.forEach(row => {
+      fragment.appendChild(createCard(row));
+    });
+
+    track.replaceChildren(fragment);
+
+    const sourceTimes = validRows
+      .map(row => Date.parse(row.source_updated_at || ""))
+      .filter(time => Number.isFinite(time));
+
+    if (sourceTimes.length) {
+      const newest = new Date(Math.max(...sourceTimes));
+
+      lastUpdate.textContent =
+        "أحدث وقت تحديث للمصدر: " +
+        newest.toLocaleString("ar-EG");
+    } else {
+      lastUpdate.textContent =
+        "وقت تحديث المصدر غير متاح";
+    }
+  }
+
+  function setStatus(message, type) {
+    status.textContent = message;
+    status.className = "aqx-status " + (type || "");
+  }
+
+  async function fetchQuotes(assetType) {
+    const url = new URL(API);
+
+    url.searchParams.set("currency", DISPLAY_CURRENCY);
+    url.searchParams.set("asset_type", assetType);
+
+    // منع الاعتماد على نسخة مخزنة من استجابة المتصفح
+    url.searchParams.set("_", Date.now().toString());
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      mode: "cors",
+      credentials: "omit",
+      cache: "no-store",
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP_" + response.status);
+    }
+
+    const result = await response.json();
+
+    if (result.success !== true ||
+        !Array.isArray(result.data)) {
+      throw new Error("INVALID_AQX_RESPONSE");
+    }
+
+    return result.data;
+  }
+
+  async function updateMarket() {
+    if (isLoading || document.hidden) {
+      return;
+    }
+
+    isLoading = true;
+    refreshButton.disabled = true;
+
+    setStatus("جارٍ جلب أحدث الأسعار...", "");
+
+    try {
+      const results = await Promise.all([
+        fetchQuotes("currency"),
+        fetchQuotes("metal")
+      ]);
+
+      const rows = results.flat();
+
+      if (!rows.length) {
+        throw new Error("EMPTY_MARKET_DATA");
+      }
+
+      lastSuccessfulRows = rows;
+
+      render(lastSuccessfulRows);
+
+      setStatus("تم تحديث البيانات بنجاح", "ok");
+
+    } catch (error) {
+      console.error("AQX Market Update:", error);
+
+      // لا نمسح آخر أسعار ناجحة عند حدوث عطل
+      if (lastSuccessfulRows.length) {
+        render(lastSuccessfulRows);
+
+        setStatus(
+          "تعذر التحديث الآن · نحتفظ بآخر بيانات ناجحة",
+          "error"
+        );
+      } else {
+        setStatus(
+          "تعذر الاتصال بمحرك AQX · ستتم إعادة المحاولة",
+          "error"
+        );
+      }
+
+    } finally {
+      isLoading = false;
+      refreshButton.disabled = false;
+    }
+  }
+
+  // تحديث يدوي
+  refreshButton.addEventListener(
+    "click",
+    updateMarket
+  );
+
+  // إعادة المحاولة عند الرجوع للصفحة
+  document.addEventListener(
+    "visibilitychange",
+    function () {
+      if (!document.hidden) {
+        updateMarket();
+      }
+    }
+  );
+
+  // أول تحميل
+  updateMarket();
+
+  // تحديث دوري
+  window.setInterval(
+    updateMarket,
+    REFRESH_INTERVAL
+  );
+
+})();
+</script>
+
+</body>
+</html>
+
