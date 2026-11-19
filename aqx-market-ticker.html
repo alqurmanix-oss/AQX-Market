@@ -1,605 +1,731 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#ffffff">
-  <title>AQX Live Market Ticker</title>
+  <meta name="description" content="AQX Market Ticker - Live currencies, gold and silver market prices.">
+  <title>AQX Market Ticker</title>
 
   <style>
+    :root {
+      --purple: #7045c5;
+      --purple-dark: #52319d;
+      --purple-soft: #f2edff;
+      --blue-soft: #eaf7ff;
+      --ink: #20243a;
+      --muted: #778096;
+      --line: #e9eaf2;
+      --surface: #ffffff;
+      --green: #159b68;
+      --red: #e14d5b;
+      --neutral: #8b93a5;
+      --shadow: 0 8px 28px rgba(49, 38, 91, .07);
+    }
+
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      padding: 20px;
-      background: #f7f5fa;
-      color: #241a33;
-      font-family: Tahoma, Arial, sans-serif;
+      padding: 22px;
+      background: #f8f9fd;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
     }
 
-    .aqx-widget {
-      width: 100%;
-      overflow: hidden;
-      background: #fff;
-      border: 1px solid #e9e2f5;
-      border-radius: 16px;
-      box-shadow: 0 4px 18px rgba(54,32,92,.06);
+    .market {
+      width: min(1200px, 100%);
+      margin: 0 auto;
     }
 
-    .aqx-header {
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding: 14px 18px;
-      border-bottom: 1px solid #eee8f5;
-      background: linear-gradient(90deg,#fff,#faf7ff);
+      gap: 16px;
+      margin-bottom: 17px;
     }
 
-    .aqx-title {
-      color: #57269a;
-      font-size: 16px;
-      font-weight: 800;
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 42px;
+      border-radius: 13px;
+      color: #fff;
+      background: linear-gradient(135deg, #8057d4, #5334a2);
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      text-decoration: none;
+      box-shadow: 0 5px 14px rgba(112, 69, 197, .2);
     }
 
-    .aqx-brand {
-      color: #9584a8;
-      font-size: 11px;
-      letter-spacing: 1px;
-    }
-
-    .aqx-controls {
+    .status {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .aqx-refresh {
-      border: 1px solid #e3d6f5;
-      background: #f7f1ff;
-      color: #6028a8;
-      padding: 8px 13px;
-      border-radius: 9px;
-      font-weight: 700;
-      cursor: pointer;
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(21, 155, 104, .1);
     }
 
-    .aqx-refresh:disabled {
-      opacity: .5;
-      cursor: wait;
+    .status-dot.offline {
+      background: var(--red);
+      box-shadow: 0 0 0 4px rgba(225, 77, 91, .1);
     }
 
-    .aqx-status {
-      font-size: 11px;
-      color: #82768e;
-    }
-
-    .aqx-status.error {
-      color: #b66b24;
-    }
-
-    .aqx-status.ok {
-      color: #16865a;
-    }
-
-    .aqx-viewport {
-      width: 100%;
+    .panel {
       overflow: hidden;
-      padding: 15px 0;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .tabs-wrap {
+      padding: 15px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(110deg, #fff, #fbfaff 65%, #f5fbff);
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      min-width: 62px;
+      padding: 10px 15px;
+      border: 1px solid #e8e3f4;
+      border-radius: 11px;
+      background: #fff;
+      color: #555c70;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .tab:hover {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    .tab.active {
+      border-color: var(--purple);
+      background: var(--purple);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(112, 69, 197, .2);
+    }
+
+    .ticker-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 19px 10px;
+    }
+
+    .ticker-heading strong {
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .currency-label {
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 800;
       direction: ltr;
     }
 
-    .aqx-track {
-      display: flex;
-      width: max-content;
-      animation: aqx-scroll 55s linear infinite;
+    .ticker-viewport {
+      overflow: hidden;
+      padding: 5px 0 17px;
     }
 
-    .aqx-widget:hover .aqx-track {
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      gap: 12px;
+      padding: 0 16px;
+      animation: ticker-scroll 65s linear infinite;
+      direction: ltr;
+    }
+
+    .ticker-track:hover {
       animation-play-state: paused;
     }
 
-    .aqx-card {
-      min-width: 175px;
-      padding: 8px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      direction: rtl;
-      border-left: 1px solid #eee8f5;
-    }
-
-    .aqx-card-name {
-      font-size: 12px;
-      color: #81738f;
-      white-space: nowrap;
-    }
-
-    .aqx-card-price {
-      font-size: 17px;
-      font-weight: 800;
-      color: #292039;
-      white-space: nowrap;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .aqx-card-unit {
-      font-size: 10px;
-      color: #a196ad;
-      white-space: nowrap;
-    }
-
-    .aqx-card.stale .aqx-card-price {
-      color: #a66d2a;
-    }
-
-    .aqx-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 10px 15px;
-      background: #fcfbfe;
-      border-top: 1px solid #eee8f5;
-      font-size: 10px;
-      color: #91869b;
-    }
-
-    .aqx-live-dot {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #18a36a;
-      margin-left: 5px;
-    }
-
-    .aqx-footer a {
-      color: #652bb0;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    @keyframes aqx-scroll {
+    @keyframes ticker-scroll {
       from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
+      to { transform: translateX(-35%); }
     }
 
-    @media(max-width:600px) {
-      body {
-        padding: 8px;
-      }
-
-      .aqx-header {
-        padding: 11px;
-      }
-
-      .aqx-card {
-        min-width: 145px;
-        padding: 7px 13px;
-      }
-
-      .aqx-card-price {
-        font-size: 15px;
-      }
+    .price-card {
+      flex: 0 0 185px;
+      min-height: 104px;
+      padding: 13px 14px;
+      border: 1px solid #ececf3;
+      border-radius: 14px;
+      background: #fff;
+      direction: rtl;
     }
 
-    @media(prefers-reduced-motion:reduce) {
-      .aqx-track {
-        animation: none;
-      }
+    .price-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .symbol {
+      color: #41465b;
+      font-size: 12px;
+      font-weight: 850;
+      direction: ltr;
+    }
+
+    .asset-type {
+      color: #8b91a3;
+      font-size: 10px;
+    }
+
+    .price-value {
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 850;
+      direction: ltr;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .price-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 900;
+      direction: ltr;
+    }
+
+    .trend.up { color: var(--green); }
+    .trend.down { color: var(--red); }
+    .trend.stable { color: var(--neutral); }
+
+    .empty {
+      width: 100%;
+      padding: 30px 15px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 17px;
+      border-top: 1px solid var(--line);
+      background: #fcfcff;
+    }
+
+    .disclaimer {
+      max-width: 790px;
+      color: #81889a;
+      font-size: 10px;
+      line-height: 1.8;
+    }
+
+    .updated {
+      color: var(--muted);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .topbar { margin-bottom: 12px; }
+      .tabs-wrap { padding: 12px; }
+      .tab { min-width: 56px; padding: 9px 12px; }
+      .price-card { flex-basis: 165px; }
+      .ticker-heading { padding: 13px 14px 8px; }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ticker-track { animation: none; }
+      * { scroll-behavior: auto !important; }
     }
   </style>
 </head>
 
 <body>
+  <main class="market">
+    <header class="topbar">
+      <!-- يمكن تغيير الوجهة عند تحديد صفحة شعار AQX المستقلة -->
+      <a class="brand" id="aqxBrand" href="https://alqurmanix.com/"
+         target="_blank" rel="noopener noreferrer" aria-label="AQX">AQX</a>
 
-<section class="aqx-widget" id="aqx-widget">
-
-  <header class="aqx-header">
-    <div>
-      <div class="aqx-title">
-        أسعار العملات والذهب والفضة
+      <div class="status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="connectionStatus">جاري الاتصال</span>
       </div>
-      <div class="aqx-brand">
-        AQX GLOBAL MARKET DATA
+    </header>
+
+    <section class="panel" aria-label="AQX Market Ticker">
+      <div class="tabs-wrap">
+        <nav class="tabs" id="currencyTabs" aria-label="Currencies">
+          <button class="tab active" type="button" data-currency="USD">USD</button>
+        </nav>
       </div>
-    </div>
 
-    <div class="aqx-controls">
-      <span class="aqx-status" id="aqx-status">
-        جارٍ الاتصال بمحرك AQX...
-      </span>
-
-      <button class="aqx-refresh"
-              id="aqx-refresh"
-              type="button">
-        تحديث الآن
-      </button>
-    </div>
-  </header>
-
-  <div class="aqx-viewport">
-    <div class="aqx-track" id="aqx-track">
-      <div class="aqx-card">
-        <span class="aqx-card-name">تحميل الأسعار</span>
-        <span class="aqx-card-price">...</span>
-        <span class="aqx-card-unit">AQX Market Data</span>
+      <div class="ticker-heading">
+        <strong>أسعار السوق</strong>
+        <span class="currency-label" id="displayCurrency">USD</span>
       </div>
-    </div>
-  </div>
 
-  <footer class="aqx-footer">
-    <span>
-      <i class="aqx-live-dot"></i>
-      <span id="aqx-last-update">في انتظار البيانات</span>
-    </span>
+      <div class="ticker-viewport">
+        <div class="ticker-track" id="tickerTrack">
+          <div class="empty">جاري تحميل بيانات السوق...</div>
+        </div>
+      </div>
 
-    <span>
-      أسعار استرشادية وليست أسعار تنفيذ أو بيع تجزئة
-    </span>
+      <footer class="footer">
+        <div class="disclaimer">
+          الأسعار المعروضة استرشادية، وتعكس آخر البيانات المتاحة من مصادر السوق،
+          ولا تمثل عرضًا ملزمًا للبيع أو الشراء أو سعر تنفيذ مضمونًا.
+        </div>
+        <div class="updated" id="lastUpdated">لم يتم التحديث بعد</div>
+      </footer>
+    </section>
+  </main>
 
-    <a href="https://alqurmanix.com"
-       target="_blank"
-       rel="noopener">
-      AQX
-    </a>
-  </footer>
+  <script>
+    "use strict";
 
-</section>
+    /* =====================================================
+       AQX MARKET TICKER
+       Existing central market API - no secret keys in browser
+       ===================================================== */
 
-<script>
-(function () {
-  "use strict";
+    const CONFIG = {
+      api: "https://fkiokwwztbyztleeuwks.supabase.co/functions/v1/aqx-market-data/v1/quotes",
+      refreshInterval: 60 * 1000,
+      requestTimeout: 15000,
 
-  /* =====================================
-     AQX CENTRAL MARKET DATA
-  ===================================== */
+      // USD is the default tab. Four other tabs are selectable.
+      optionalCurrencies: ["EUR", "GBP", "SAR", "AED"],
 
-  const API =
-    "https://fkiokwwztbyztleeuwks.supabase.co/functions/v1/aqx-market-data/v1/quotes";
+      // Change this only when the dedicated AQX brand page is supplied.
+      brandUrl: "https://alqurmanix.com/"
+    };
 
-  const DISPLAY_CURRENCY = "EGP";
+    const state = {
+      displayCurrency: "USD",
+      localCurrency: "EGP",
+      latestQuotes: [],
+      previousPrices: {},
+      lastSuccessfulUpdate: null,
+      loading: false,
+      failed: false
+    };
 
-  // تحديث واجهة الشريط كل 60 ثانية
-  const REFRESH_INTERVAL = 60 * 1000;
+    const elements = {
+      tabs: document.getElementById("currencyTabs"),
+      track: document.getElementById("tickerTrack"),
+      displayCurrency: document.getElementById("displayCurrency"),
+      lastUpdated: document.getElementById("lastUpdated"),
+      status: document.getElementById("connectionStatus"),
+      statusDot: document.getElementById("statusDot"),
+      brand: document.getElementById("aqxBrand")
+    };
 
-  // بيانات المصدر القديمة لا تُخفى،
-  // بل تظل ظاهرة مع تمييزها بأنها قديمة.
-  const CURRENCY_STALE_MINUTES = 24 * 60;
-  const METAL_STALE_MINUTES = 30;
+    elements.brand.href = CONFIG.brandUrl;
 
-  const CURRENCY_NAMES = {
-    "AED": "الدرهم الإماراتي",
-    "AUD": "الدولار الأسترالي",
-    "BHD": "الدينار البحريني",
-    "BRL": "الريال البرازيلي",
-    "CAD": "الدولار الكندي",
-    "CHF": "الفرنك السويسري",
-    "CNY": "اليوان الصيني",
-    "DKK": "الكرونة الدنماركية",
-    "EGP": "الجنيه المصري",
-    "EUR": "اليورو",
-    "GBP": "الجنيه الإسترليني",
-    "HKD": "دولار هونغ كونغ",
-    "INR": "الروبية الهندية",
-    "JOD": "الدينار الأردني",
-    "JPY": "الين الياباني",
-    "KWD": "الدينار الكويتي",
-    "OMR": "الريال العماني",
-    "QAR": "الريال القطري",
-    "SAR": "الريال السعودي",
-    "USD": "الدولار الأمريكي",
-    "TRY": "الليرة التركية",
-    "ZAR": "الراند الجنوب أفريقي",
-    "SEK": "الكرونة السويدية",
-    "NOK": "الكرونة النرويجية",
-    "NZD": "الدولار النيوزيلندي",
-    "SGD": "الدولار السنغافوري",
-    "RUB": "الروبل الروسي",
-    "MXN": "البيزو المكسيكي",
-    "KRW": "الوون الكوري",
-    "IDR": "الروبية الإندونيسية",
-    "MYR": "الرينغيت الماليزي",
-    "PHP": "البيزو الفلبيني",
-    "PKR": "الروبية الباكستانية",
-    "PLN": "الزلوتي البولندي",
-    "THB": "البات التايلاندي",
-    "TWD": "الدولار التايواني",
-    "BDT": "التاكا البنغلاديشية",
-    "CZK": "الكورونا التشيكية",
-    "HUF": "الفورنت المجري",
-    "ILS": "الشيكل الإسرائيلي"
-  };
+    function detectVisitor() {
+      let locale = "en-US";
 
-  const METAL_NAMES = {
-    "XAU_24_EGP_G": "الذهب عيار 24",
-    "XAU_22_EGP_G": "الذهب عيار 22",
-    "XAU_21_EGP_G": "الذهب عيار 21",
-    "XAU_18_EGP_G": "الذهب عيار 18",
-    "XAU_14_EGP_G": "الذهب عيار 14",
-    "XAU_EGP_G": "الذهب - جرام مرجعي",
-    "XAU_EGP_OZ": "الذهب - الأونصة",
-    "XAU_USD_OZ": "الذهب - الأونصة بالدولار",
+      try {
+        locale = navigator.languages?.[0] ||
+                 navigator.language ||
+                 "en-US";
+      } catch (_) {}
 
-    "XAG_999_EGP_G": "الفضة عيار 999",
-    "XAG_958_EGP_G": "الفضة عيار 958",
-    "XAG_925_EGP_G": "الفضة عيار 925",
-    "XAG_900_EGP_G": "الفضة عيار 900",
-    "XAG_EGP_G": "الفضة - جرام مرجعي",
-    "XAG_EGP_OZ": "الفضة - الأونصة",
-    "XAG_USD_OZ": "الفضة - الأونصة بالدولار"
-  };
+      let region = "US";
 
-  const track = document.getElementById("aqx-track");
-  const status = document.getElementById("aqx-status");
-  const lastUpdate = document.getElementById("aqx-last-update");
-  const refreshButton = document.getElementById("aqx-refresh");
+      try {
+        const localeObject = new Intl.Locale(locale);
+        region = localeObject.region || "US";
+      } catch (_) {
+        const match = locale.match(/[-_]([A-Z]{2})\b/i);
+        if (match) region = match[1].toUpperCase();
+      }
 
-  let lastSuccessfulRows = [];
-  let isLoading = false;
+      const regionCurrency = {
+        EG: "EGP", SA: "SAR", AE: "AED", KW: "KWD",
+        QA: "QAR", BH: "BHD", OM: "OMR", JO: "JOD",
+        GB: "GBP", US: "USD", CA: "CAD", AU: "AUD",
+        NZ: "NZD", CH: "CHF", JP: "JPY", CN: "CNY",
+        IN: "INR", TR: "TRY", DE: "EUR", FR: "EUR",
+        IT: "EUR", ES: "EUR", NL: "EUR", BE: "EUR",
+        AT: "EUR", PT: "EUR", IE: "EUR", GR: "EUR",
+        MX: "MXN", BR: "BRL", ZA: "ZAR", SG: "SGD",
+        HK: "HKD", SE: "SEK", NO: "NOK", DK: "DKK",
+        PL: "PLN", KR: "KRW", RU: "RUB"
+      };
 
-  function formatNumber(value) {
-    const number = Number(value);
-
-    if (!Number.isFinite(number)) {
-      return "غير متاح";
+      return {
+        locale,
+        region,
+        currency: regionCurrency[region] || "USD"
+      };
     }
 
-    return new Intl.NumberFormat("ar-EG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: number < 1 ? 5 : 2
-    }).format(number);
-  }
+    const visitor = detectVisitor();
+    state.localCurrency = visitor.currency;
 
-  function getName(row) {
-    if (row.asset_type === "currency") {
-      const code = row.base_currency || row.symbol.split("/")[0];
+    function buildCurrencyTabs() {
+      const optional = [...CONFIG.optionalCurrencies];
 
-      return CURRENCY_NAMES[code] ||
-        ("عملة " + code);
+      // The local currency is always the last optional tab.
+      // If it already exists in the fixed options, remove the duplicate.
+      const filtered = optional.filter(code => code !== state.localCurrency);
+
+      // Ensure four optional currencies, without duplicates.
+      const fallback = ["CAD", "JPY", "CHF", "INR", "KWD", "EGP"];
+      for (const code of fallback) {
+        if (filtered.length >= 3) break;
+        if (code !== state.localCurrency && !filtered.includes(code)) {
+          filtered.push(code);
+        }
+      }
+
+      const choices = ["USD", ...filtered.slice(0, 3), state.localCurrency];
+      const uniqueChoices = [...new Set(choices)];
+
+      elements.tabs.innerHTML = "";
+
+      uniqueChoices.forEach(code => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tab";
+        button.dataset.currency = code;
+        button.textContent = code;
+        button.addEventListener("click", () => selectCurrency(code));
+        elements.tabs.appendChild(button);
+      });
+
+      selectCurrency("USD", false);
     }
 
-    return METAL_NAMES[row.symbol] || row.symbol;
-  }
+    function selectCurrency(currency, reload = true) {
+      state.displayCurrency = currency;
 
-  function getUnit(row) {
-    if (row.asset_type === "currency") {
-      return "لكل 1 " + row.base_currency +
-        " · " + DISPLAY_CURRENCY;
+      elements.tabs.querySelectorAll(".tab").forEach(button => {
+        const active = button.dataset.currency === currency;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+
+      elements.displayCurrency.textContent = currency;
+
+      if (reload) {
+        loadMarketData();
+      }
     }
 
-    return row.display_unit ||
-      row.unit ||
-      DISPLAY_CURRENCY;
-  }
+    function makeApiUrl(assetType) {
+      const url = new URL(CONFIG.api);
+      url.searchParams.set("currency", state.displayCurrency);
+      url.searchParams.set("asset_type", assetType);
 
-  function isStale(row) {
-    if (!row.source_updated_at) {
-      return true;
+      // Send visitor locale information as context.
+      // The API may ignore parameters it does not use.
+      url.searchParams.set("locale", visitor.locale);
+      url.searchParams.set("country", visitor.region);
+
+      return url.toString();
     }
 
-    const sourceDate = new Date(row.source_updated_at);
+    async function fetchAssetType(assetType) {
+      const controller = new AbortController();
+      const timeout = setTimeout(
+        () => controller.abort(),
+        CONFIG.requestTimeout
+      );
 
-    if (Number.isNaN(sourceDate.getTime())) {
-      return true;
+      try {
+        const response = await fetch(makeApiUrl(assetType), {
+          method: "GET",
+          headers: { "Accept": "application/json" },
+          cache: "no-store",
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+
+        const payload = await response.json();
+
+        if (payload.success === false) {
+          throw new Error(payload.message || "API request failed");
+        }
+
+        if (Array.isArray(payload.data)) return payload.data;
+        if (Array.isArray(payload.quotes)) return payload.quotes;
+
+        throw new Error("Unexpected API response format");
+      } finally {
+        clearTimeout(timeout);
+      }
     }
 
-    const ageMinutes =
-      (Date.now() - sourceDate.getTime()) / 60000;
-
-    const limit = row.asset_type === "metal"
-      ? METAL_STALE_MINUTES
-      : CURRENCY_STALE_MINUTES;
-
-    return ageMinutes > limit;
-  }
-
-  function createCard(row) {
-    const card = document.createElement("div");
-    card.className = "aqx-card";
-
-    const name = document.createElement("span");
-    name.className = "aqx-card-name";
-    name.textContent = getName(row);
-
-    const price = document.createElement("span");
-    price.className = "aqx-card-price";
-    price.textContent =
-      formatNumber(row.display_price) +
-      " " + (row.display_currency || DISPLAY_CURRENCY);
-
-    const unit = document.createElement("span");
-    unit.className = "aqx-card-unit";
-
-    const sourceDate = row.source_updated_at
-      ? new Date(row.source_updated_at)
-      : null;
-
-    const sourceTime =
-      sourceDate && !Number.isNaN(sourceDate.getTime())
-        ? sourceDate.toLocaleString("ar-EG")
-        : "وقت المصدر غير متاح";
-
-    unit.textContent =
-      getUnit(row) + " · " + sourceTime;
-
-    if (isStale(row)) {
-      card.classList.add("stale");
-      unit.textContent =
-        "بيانات قديمة · " + unit.textContent;
+    function getDisplayPrice(item) {
+      const value = item.display_price ?? item.price;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
     }
 
-    card.append(name, price, unit);
-
-    return card;
-  }
-
-  function render(rows) {
-    const validRows = rows.filter(row =>
-      (row.asset_type === "currency" ||
-       row.asset_type === "metal") &&
-      row.display_price !== null &&
-      Number.isFinite(Number(row.display_price))
-    );
-
-    if (!validRows.length) {
-      throw new Error("NO_VALID_MARKET_QUOTES");
+    function getDisplayUnit(item) {
+      return item.display_unit ||
+             item.unit ||
+             item.display_currency ||
+             state.displayCurrency;
     }
 
-    const fragment = document.createDocumentFragment();
+    function getStableKey(item) {
+      return [
+        item.symbol || "UNKNOWN",
+        state.displayCurrency
+      ].join("|");
+    }
 
-    validRows.forEach(row => {
-      fragment.appendChild(createCard(row));
+    function getTrend(item, currentPrice) {
+      const key = getStableKey(item);
+      const previous = state.previousPrices[key];
+
+      if (!Number.isFinite(previous) || !Number.isFinite(currentPrice)) {
+        return { className: "stable", symbol: "●", label: "مستقر" };
+      }
+
+      const tolerance = Math.max(Math.abs(previous) * 0.00000001, 0.000000001);
+
+      if (currentPrice > previous + tolerance) {
+        return { className: "up", symbol: "▲", label: "صاعد" };
+      }
+
+      if (currentPrice < previous - tolerance) {
+        return { className: "down", symbol: "▼", label: "هابط" };
+      }
+
+      return { className: "stable", symbol: "●", label: "مستقر" };
+    }
+
+    function rememberPrices(quotes) {
+      const next = {};
+
+      quotes.forEach(item => {
+        const price = getDisplayPrice(item);
+        if (price === null) return;
+
+        next[getStableKey(item)] = price;
+      });
+
+      // Keep only successfully received values.
+      state.previousPrices = {
+        ...state.previousPrices,
+        ...next
+      };
+    }
+
+    function formatPrice(value) {
+      return new Intl.NumberFormat(visitor.locale, {
+        maximumFractionDigits: 6,
+        minimumFractionDigits: 0
+      }).format(value);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    function getAssetLabel(item) {
+      const type = String(item.asset_type || "").toLowerCase();
+
+      if (type.includes("metal")) return "معدن";
+      if (type.includes("currency") || type.includes("fx")) return "عملة";
+
+      return "";
+    }
+
+    function createCard(item) {
+      const price = getDisplayPrice(item);
+      if (price === null) return "";
+
+      const trend = getTrend(item, price);
+      const symbol = escapeHtml(item.symbol || "—");
+      const unit = escapeHtml(getDisplayUnit(item));
+      const assetLabel = escapeHtml(getAssetLabel(item));
+
+      return `
+        <article class="price-card">
+          <div class="price-top">
+            <span class="symbol">${symbol}</span>
+            <span class="asset-type">${assetLabel}</span>
+          </div>
+
+          <div class="price-value">${formatPrice(price)}</div>
+
+          <div class="price-bottom">
+            <span>${unit}</span>
+            <span class="trend ${trend.className}"
+                  aria-label="${trend.label}">
+              ${trend.symbol}
+            </span>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderQuotes(quotes) {
+      const validQuotes = quotes.filter(item => getDisplayPrice(item) !== null);
+
+      if (!validQuotes.length) {
+        elements.track.innerHTML =
+          '<div class="empty">لا توجد أسعار متاحة حاليًا.</div>';
+        return;
+      }
+
+      const cards = validQuotes.map(createCard).join("");
+
+      // Duplicate cards to create a continuous ticker effect.
+      elements.track.innerHTML = cards + cards;
+
+      // Reduce motion for a short list, avoiding excessive empty movement.
+      elements.track.style.animationDuration =
+        Math.max(25, validQuotes.length * 5) + "s";
+    }
+
+    function setConnection(connected, message) {
+      elements.status.textContent = message;
+      elements.statusDot.classList.toggle("offline", !connected);
+    }
+
+    function formatUpdateTime(date) {
+      return new Intl.DateTimeFormat(visitor.locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      }).format(date);
+    }
+
+    async function loadMarketData() {
+      if (state.loading) return;
+      state.loading = true;
+
+      try {
+        const [currencies, metals] = await Promise.all([
+          fetchAssetType("currency"),
+          fetchAssetType("metal")
+        ]);
+
+        const combined = [...currencies, ...metals];
+
+        // Ignore an empty response; do not replace the last good display.
+        if (!combined.length) {
+          throw new Error("Empty market response");
+        }
+
+        rememberPrices(combined);
+
+        state.latestQuotes = combined;
+        state.lastSuccessfulUpdate = new Date();
+        state.failed = false;
+
+        renderQuotes(state.latestQuotes);
+        elements.lastUpdated.textContent =
+          "آخر تحديث ناجح: " +
+          formatUpdateTime(state.lastSuccessfulUpdate);
+
+        setConnection(true, "متصل");
+      } catch (error) {
+        state.failed = true;
+
+        // Preserve the last successful readings.
+        if (state.latestQuotes.length) {
+          renderQuotes(state.latestQuotes);
+        }
+
+        setConnection(false, "تعذر الاتصال");
+
+        if (state.lastSuccessfulUpdate) {
+          elements.lastUpdated.textContent =
+            "آخر تحديث ناجح: " +
+            formatUpdateTime(state.lastSuccessfulUpdate) +
+            " · البيانات السابقة محفوظة";
+        } else {
+          elements.lastUpdated.textContent = "بانتظار أول تحديث ناجح";
+          elements.track.innerHTML =
+            '<div class="empty">تعذر جلب البيانات. ستتم إعادة المحاولة تلقائيًا.</div>';
+        }
+
+        console.warn("AQX Market API:", error);
+      } finally {
+        state.loading = false;
+      }
+    }
+
+    // Start the interface.
+    buildCurrencyTabs();
+    loadMarketData();
+
+    // Automatic refresh every 60 seconds.
+    window.setInterval(loadMarketData, CONFIG.refreshInterval);
+
+    // Refresh when the visitor returns to the browser tab.
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) loadMarketData();
     });
-
-    // تكرار البطاقات لعمل حركة مستمرة
-    validRows.forEach(row => {
-      fragment.appendChild(createCard(row));
-    });
-
-    track.replaceChildren(fragment);
-
-    const sourceTimes = validRows
-      .map(row => Date.parse(row.source_updated_at || ""))
-      .filter(time => Number.isFinite(time));
-
-    if (sourceTimes.length) {
-      const newest = new Date(Math.max(...sourceTimes));
-
-      lastUpdate.textContent =
-        "أحدث وقت تحديث للمصدر: " +
-        newest.toLocaleString("ar-EG");
-    } else {
-      lastUpdate.textContent =
-        "وقت تحديث المصدر غير متاح";
-    }
-  }
-
-  function setStatus(message, type) {
-    status.textContent = message;
-    status.className = "aqx-status " + (type || "");
-  }
-
-  async function fetchQuotes(assetType) {
-    const url = new URL(API);
-
-    url.searchParams.set("currency", DISPLAY_CURRENCY);
-    url.searchParams.set("asset_type", assetType);
-
-    // منع الاعتماد على نسخة مخزنة من استجابة المتصفح
-    url.searchParams.set("_", Date.now().toString());
-
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      mode: "cors",
-      credentials: "omit",
-      cache: "no-store",
-      headers: {
-        "Accept": "application/json"
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error("HTTP_" + response.status);
-    }
-
-    const result = await response.json();
-
-    if (result.success !== true ||
-        !Array.isArray(result.data)) {
-      throw new Error("INVALID_AQX_RESPONSE");
-    }
-
-    return result.data;
-  }
-
-  async function updateMarket() {
-    if (isLoading || document.hidden) {
-      return;
-    }
-
-    isLoading = true;
-    refreshButton.disabled = true;
-
-    setStatus("جارٍ جلب أحدث الأسعار...", "");
-
-    try {
-      const results = await Promise.all([
-        fetchQuotes("currency"),
-        fetchQuotes("metal")
-      ]);
-
-      const rows = results.flat();
-
-      if (!rows.length) {
-        throw new Error("EMPTY_MARKET_DATA");
-      }
-
-      lastSuccessfulRows = rows;
-
-      render(lastSuccessfulRows);
-
-      setStatus("تم تحديث البيانات بنجاح", "ok");
-
-    } catch (error) {
-      console.error("AQX Market Update:", error);
-
-      // لا نمسح آخر أسعار ناجحة عند حدوث عطل
-      if (lastSuccessfulRows.length) {
-        render(lastSuccessfulRows);
-
-        setStatus(
-          "تعذر التحديث الآن · نحتفظ بآخر بيانات ناجحة",
-          "error"
-        );
-      } else {
-        setStatus(
-          "تعذر الاتصال بمحرك AQX · ستتم إعادة المحاولة",
-          "error"
-        );
-      }
-
-    } finally {
-      isLoading = false;
-      refreshButton.disabled = false;
-    }
-  }
-
-  // تحديث يدوي
-  refreshButton.addEventListener(
-    "click",
-    updateMarket
-  );
-
-  // إعادة المحاولة عند الرجوع للصفحة
-  document.addEventListener(
-    "visibilitychange",
-    function () {
-      if (!document.hidden) {
-        updateMarket();
-      }
-    }
-  );
-
-  // أول تحميل
-  updateMarket();
-
-  // تحديث دوري
-  window.setInterval(
-    updateMarket,
-    REFRESH_INTERVAL
-  );
-
-})();
-</script>
-
+  </script>
 </body>
 </html>
-
