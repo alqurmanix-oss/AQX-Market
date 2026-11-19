@@ -1,0 +1,147 @@
+/* ==========================================================================
+   AQX HOME UPDATE v3 — شريط الأسعار الفاخر + شريط وسائل الدفع + واتساب
+   يعمل فوق index.html الحالي بدون تعديل أي جزء آخر.
+   أضفه قبل </body> وبعد آخر </script>:   <script src="aqx-home-update.js"></script>
+   ========================================================================== */
+(()=>{try{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const AR_=typeof AR!=='undefined'?AR:/^ar/i.test(navigator.language||'');
+const LG=AR_?'ar':String(typeof L!=='undefined'?L:navigator.language||'en').slice(0,2).toLowerCase();
+const sp=x=>{try{if(typeof speak==='function')speak(x)}catch(e){}};
+const tn=f=>{try{if(typeof tone==='function')tone(f)}catch(e){}};
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ===== الإعدادات (غيّرها حسب الحاجة) ===== */
+const CFG={api:'https://fkiokwwztbyztleeuwks.supabase.co/functions/v1/aqx-market-data/v1/quotes',every:60000,timeout:20000,opt:['EUR','GBP','SAR'],fb:['AED','KWD','CAD','JPY','CHF','EGP'],
+  payDir:'assets/pay/',                       // مجلد شعارات البنوك والمحافظ الأصلية (svg أو png)
+  logo:'https://cdn.jsdelivr.net/gh/alqurmanix-oss/aqx-brand-assets@main/logo/aqx-logo.png',
+  wa:'201027834695',marketPage:'aqx-market.html'};
+/* ===== النصوص حسب لغة الزائر ===== */
+const TX={ar:{conn:'جاري الاتصال',ok:'متصل',err:'تعذر الاتصال',demo:'بيانات تجريبية',upd:'آخر تحديث ناجح: ',wait:'بانتظار أول تحديث',add:'أضف شريط الأسعار إلى موقعك',open:'جاري فتح ',now:'الآن',wa1:'تواصل مع القرماني إكس AQX',wa2:'AQX — Official Communication',wa3:'نحن هنا لمساعدتك.. تواصل معنا مباشرة عبر واتساب.',waO:'جاري فتح واتساب'},
+en:{conn:'Connecting',ok:'Connected',err:'Connection failed',demo:'Sample data',upd:'Last successful update: ',wait:'Waiting for first update',add:'Add the price ticker to your website',open:'Opening ',now:'now',wa1:'Contact Alqurmani X AQX',wa2:'AQX — Official Communication',wa3:'We are here to help — contact us directly on WhatsApp.',waO:'Opening WhatsApp'},
+fr:{conn:'Connexion',ok:'Connecté',err:'Connexion impossible',demo:'Données d’exemple',upd:'Dernière mise à jour : ',wait:'En attente',add:'Ajoutez le bandeau des prix à votre site',open:'Ouverture de ',now:'maintenant',wa1:'Contacter Alqurmani X AQX',wa3:'Nous sommes là pour vous aider — contactez-nous sur WhatsApp.',waO:'Ouverture de WhatsApp'},
+es:{conn:'Conectando',ok:'Conectado',err:'Sin conexión',demo:'Datos de ejemplo',upd:'Última actualización: ',wait:'Esperando',add:'Añade la barra de precios a tu sitio',open:'Abriendo ',now:'ahora',wa1:'Contactar con Alqurmani X AQX',wa3:'Estamos aquí para ayudarte — escríbenos por WhatsApp.',waO:'Abriendo WhatsApp'}};
+const t=Object.assign({},TX.en,TX[LG]||{});
+/* ===== العملات والمعادن: [عربي, English, رمز, لون1, لون2] ===== */
+const NM={USD:['الدولار الأمريكي','US Dollar','$','#2e8b57','#1f6f43'],EUR:['اليورو','Euro','€','#3b6fd4','#23469c'],GBP:['الجنيه الإسترليني','Pound Sterling','£','#8b3fa8','#5d2a73'],SAR:['الريال السعودي','Saudi Riyal','ر.س','#0f8a5f','#0a5f42'],AED:['الدرهم الإماراتي','UAE Dirham','د.إ','#c9382f','#8f2620'],KWD:['الدينار الكويتي','Kuwaiti Dinar','د.ك','#1f9d8b','#146b5e'],QAR:['الريال القطري','Qatari Riyal','ر.ق','#8a1538','#5c0d25'],BHD:['الدينار البحريني','Bahraini Dinar','د.ب','#c8102e','#8f0b20'],OMR:['الريال العماني','Omani Rial','ر.ع','#c8102e','#0f8a5f'],JOD:['الدينار الأردني','Jordanian Dinar','د.أ','#2b2b2b','#c8102e'],EGP:['الجنيه المصري','Egyptian Pound','ج.م','#c8a45c','#8a6d2b'],CAD:['الدولار الكندي','Canadian Dollar','C$','#d52b1e','#9a1d14'],AUD:['الدولار الأسترالي','Australian Dollar','A$','#1e3a8a','#12255c'],JPY:['الين الياباني','Japanese Yen','¥','#bc002d','#7f001e'],CNY:['اليوان الصيني','Chinese Yuan','¥','#de2910','#a01c0b'],CHF:['الفرنك السويسري','Swiss Franc','Fr','#d52b1e','#8f1d14'],TRY:['الليرة التركية','Turkish Lira','₺','#e30a17','#9a0710'],INR:['الروبية الهندية','Indian Rupee','₹','#ff9933','#138808'],RUB:['الروبل الروسي','Russian Ruble','₽','#1c57a5','#0f3a73'],XAU:['الذهب','Gold','Au','#f6d365','#d4a94f'],XAG:['الفضة','Silver','Ag','#eef1f5','#9aa6b5'],XPT:['البلاتين','Platinum','Pt','#e3e9f0','#8aa0b6'],XPD:['البلاديوم','Palladium','Pd','#d6dce2','#7b8794']};
+const codeOf=s=>{const m=String(s||'').toUpperCase().match(/XAU|XAG|XPT|XPD|[A-Z]{3}/);return m?m[0]:String(s||'—')};
+/* ===== الأيقونات والمؤشرات ===== */
+const UP='<svg viewBox="0 0 12 12"><path d="M6 1 11 9.5H1Z" fill="currentColor"/></svg>',DN='<svg viewBox="0 0 12 12"><path d="M6 11 1 2.5h10Z" fill="currentColor"/></svg>',SB='<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="3" fill="currentColor"/></svg>';
+/* ===== CSS ===== */
+const css=document.createElement('style');css.textContent=`
+body #st.mkx{background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(243,237,255,.96));border-top:0;box-shadow:0 -10px 40px #7a4df022;color:#20243a;padding-top:0}
+#st.mkx::before{content:"";display:block;height:2px;background:linear-gradient(90deg,#7a4df0,#4fc3f7,#d4a94f,#ff7aa8,#7a4df0);background-size:300% 100%;animation:mkSh 8s linear infinite}
+@keyframes mkSh{to{background-position:300% 0}}
+.mk-tabs{display:flex;gap:6px;overflow-x:auto;padding:6px 12px 2px;scrollbar-width:none;direction:ltr}.mk-tabs::-webkit-scrollbar{display:none}
+.mk-tab{flex:none;border:1px solid #e1d8fa;background:#fff;color:#52319d;border-radius:12px;padding:3px 12px;font:800 11px/1.6 system-ui,sans-serif;cursor:pointer;transition:.2s}
+.mk-tab:hover{border-color:#7a4df0}.mk-tab.on{background:linear-gradient(135deg,#7a4df0,#4fc3f7);color:#fff;border-color:transparent;box-shadow:0 4px 14px #7a4df055}
+.mk-vp{overflow:hidden;direction:ltr;padding:4px 0}
+.mk-track{display:flex;width:max-content;animation:mkMove var(--d,60s) linear infinite}
+.mk-vp:hover .mk-track{animation-play-state:paused}.mk-g{display:flex;gap:8px;padding:0 4px}
+@keyframes mkMove{to{transform:translateX(-50%)}}
+.mk-c{position:relative;display:flex;align-items:center;gap:8px;flex:none;height:42px;padding:0 10px 0 6px;border-radius:14px;background:rgba(255,255,255,.88);border:1px solid #ece6fb;box-shadow:0 4px 14px #7a4df014;direction:ltr;transition:transform .25s,box-shadow .25s;color:inherit;text-decoration:none}
+.mk-c:hover{transform:translateY(-2px);box-shadow:0 8px 20px #7a4df033}
+.mk-c.fu{animation:fU 1.4s}.mk-c.fd{animation:fD 1.4s}
+@keyframes fU{0%{box-shadow:0 0 0 0 #16c37dcc;background:#e6fff3}100%{box-shadow:0 4px 14px #7a4df014}}
+@keyframes fD{0%{box-shadow:0 0 0 0 #ff4d6ccc;background:#ffe9ed}100%{box-shadow:0 4px 14px #7a4df014}}
+.mk-i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font:800 11px/1 system-ui,sans-serif;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 3px 8px var(--b),inset 0 1px 2px #fff9;flex:none}
+.mk-i.mt{color:#4a3a0a;text-shadow:0 1px 0 #fff9;box-shadow:0 3px 8px var(--b),inset 0 2px 3px #fff,inset 0 -2px 3px #0002}
+.mk-s{display:flex;flex-direction:column;line-height:1.15}.mk-s b{font-size:11.5px;color:#41465b}.mk-s small{font-size:9px;color:#8b91a3}
+.mk-v{font:850 15px/1 system-ui,sans-serif;color:#20243a;min-width:50px;text-align:right;white-space:nowrap}
+.mk-t{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:10px;font:900 10px/1 system-ui,sans-serif}.mk-t svg{width:12px;height:12px}
+.mk-t.up{color:#0a8f5e;background:linear-gradient(135deg,#e1fff1,#c9f7e1);box-shadow:0 0 12px #16c37d44}.mk-t.up svg{animation:aU 1.4s ease-in-out infinite}
+.mk-t.dn{color:#d63a52;background:linear-gradient(135deg,#ffe8ec,#ffd3db);box-shadow:0 0 12px #ff4d6c44}.mk-t.dn svg{animation:aD 1.4s ease-in-out infinite}
+.mk-t.sb{color:#8b93a5;background:#f1f2f7}
+@keyframes aU{50%{transform:translateY(-2px)}}@keyframes aD{50%{transform:translateY(2px)}}
+.mk-pay .mk-g{gap:10px}
+.pay-c{display:grid;place-items:center;flex:none;min-width:88px;height:36px;padding:0 12px;border-radius:12px;background:#fff;border:1px solid #ece6fb;box-shadow:0 4px 12px #7a4df014;cursor:pointer;transition:box-shadow .25s,transform .25s}
+.pay-c:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 8px 22px #7a4df044}
+.pay-c img{max-height:22px;max-width:84px;display:block}
+.pay-b{font:900 11px/1 system-ui,sans-serif;padding:5px 10px;border-radius:8px;white-space:nowrap;box-shadow:inset 0 0 8px #fff4}
+.mk-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 14px 5px;font-size:10px;color:#778096;flex-wrap:wrap}
+.mk-st{display:flex;align-items:center;gap:6px}.mk-st i{width:7px;height:7px;border-radius:50%;background:#16c37d;box-shadow:0 0 0 3px #16c37d22}.mk-st i.off{background:#ff4d6c;box-shadow:0 0 0 3px #ff4d6c22}.mk-st i.dm{background:#d4a94f;box-shadow:0 0 0 3px #d4a94f33}
+#mkAdd{font-weight:800;background:linear-gradient(90deg,#7a4df0,#4fc3f7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+a.wa{display:inline-flex;align-items:center;gap:10px;padding:8px 14px 8px 10px;border-radius:40px;color:#fff;background:linear-gradient(135deg,#25d366,#128c7e,#25d366);background-size:200% 100%;animation:waSh 6s linear infinite;box-shadow:0 8px 24px #25d36666;transition:transform .25s}
+a.wa:hover{transform:translateY(-3px) scale(1.03)}@keyframes waSh{to{background-position:200% 0}}
+.wa-ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#ffffff33;font-size:1.2rem;flex:none}
+.wa-tx{display:flex;flex-direction:column;line-height:1.3;text-align:start}.wa-tx b{font-size:.85rem}.wa-tx small{font-size:.68rem;opacity:.92;max-width:210px}
+.wa-tx .s2{display:none}a.wa:hover .s1{display:none}a.wa:hover .s2{display:block}
+.wa-l{height:24px;width:auto;border-radius:6px;background:#fff;padding:2px;flex:none}
+`;document.head.appendChild(css);
+/* ===== بناء الهيكل ===== */
+const st=$('#st');if(!st)return;st.classList.add('mkx');
+st.innerHTML=`<div class="mk-tabs" id="mkTabs" role="tablist"></div><div class="mk-vp"><div class="mk-track" id="mkTrack"></div></div><div class="mk-vp mk-pay"><div class="mk-track" id="payTrack" style="--d:55s"></div></div><div class="mk-foot"><span class="mk-st"><i id="mkDot" class="dm"></i><span id="mkStat">${E(t.conn)}</span></span><span id="mkUpd">${E(t.wait)}</span><a id="mkAdd" href="${CFG.marketPage}" data-say="${E(t.add)}">${E(t.add)}</a></div>`;
+const fitBar=()=>{try{if(typeof meas==='function')meas()}catch(e){}};
+if(window.ResizeObserver)new ResizeObserver(fitBar).observe(st);fitBar();
+/* ===== الحالة ===== */
+const S={disp:'USD',local:(typeof cur!=='undefined'&&cur)||'USD',prev:{},dir:{},pc:{},ok:false,req:0,busy:false,last:null};
+const fmtP=p=>new Intl.NumberFormat('en-US',{minimumFractionDigits:p>=100?2:0,maximumFractionDigits:p>=100?2:p>=1?4:6}).format(p);
+const fmtT=d=>new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d);
+const priceOf=it=>{if(it.demo)return null;const n=Number(it.display_price!=null?it.display_price:it.price);return Number.isFinite(n)?n:null};
+const unitOf=it=>it.display_unit||it.display_currency||S.disp;
+const nameOf=c=>{const n=NM[c];return n?(AR_?n[0]:n[1]):c};
+/* ===== تبويبات العملات ===== */
+const tabs=$('#mkTabs');
+const buildTabs=()=>{const o=CFG.opt.filter(c=>c!==S.local);for(const c of CFG.fb){if(o.length>=3)break;if(c!==S.local&&!o.includes(c))o.push(c)}
+  [...new Set(['USD',...o.slice(0,3),S.local])].forEach(c=>{const b=document.createElement('button');b.type='button';b.className='mk-tab';b.dataset.c=c;b.dataset.say=nameOf(c);b.textContent=c;b.setAttribute('role','tab');b.onclick=()=>pick(c);tabs.append(b)});mark()};
+const mark=()=>$$('.mk-tab').forEach(b=>{const on=b.dataset.c===S.disp;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
+const pick=c=>{if(c===S.disp)return;S.disp=c;mark();demoOrLoad(true)};
+/* ===== بطاقات الأسعار ===== */
+const card=it=>{const c=codeOf(it.symbol),n=NM[c]||[c,c,c.slice(0,2),'#7a4df0','#4fc3f7'],mt=/^X(AU|AG|PT|PD)$/.test(c);
+  return `<a class="mk-c" data-s="${E(it.symbol)}" href="market-${E(c)}.html"><span class="mk-i${mt?' mt':''}" style="--a:${n[3]};--b:${n[4]}">${E(n[2])}</span><span class="mk-s"><b>${E(it.symbol)}</b><small>${E(unitOf(it))}</small></span><span class="mk-v">—</span><span class="mk-t sb">${SB}</span></a>`};
+const fill=(el,it,c)=>{const p=priceOf(it),k=it.symbol+'|'+c,pv=S.prev[k];let flash='';
+  if(p!=null&&Number.isFinite(pv)&&Math.abs(p-pv)>1e-9){S.dir[k]=p>pv?'up':'dn';S.pc[k]=(Math.abs(p-pv)/Math.abs(pv||1)*100).toFixed(2)+'%';flash=S.dir[k]}
+  const d=S.dir[k]||'sb',tt=el.querySelector('.mk-t');
+  el.querySelector('.mk-v').textContent=p==null?'—':fmtP(p);
+  tt.className='mk-t '+d;tt.innerHTML=(d=='up'?UP:d=='dn'?DN:SB)+(d!='sb'&&S.pc[k]?`<span>${S.pc[k]}</span>`:'');
+  el.dataset.say=nameOf(codeOf(it.symbol))+(p!=null?' '+fmtP(p)+' '+unitOf(it):'');
+  if(flash){el.classList.remove('fu','fd');void el.offsetWidth;el.classList.add(flash=='up'?'fu':'fd')}};
+const render=(list,c)=>{const tr=$('#mkTrack'),sig=list.map(i=>i.symbol).join('|')+c;
+  if(tr.dataset.sig!==sig){tr.dataset.sig=sig;const h=list.map(card).join('');tr.innerHTML=`<div class="mk-g">${h}</div><div class="mk-g" aria-hidden="true">${h}</div>`;
+    requestAnimationFrame(()=>tr.style.setProperty('--d',Math.max(24,tr.firstChild.getBoundingClientRect().width/70)+'s'))}
+  list.forEach(it=>$$('#mkTrack .mk-c').filter(e=>e.dataset.s===String(it.symbol)).forEach(e=>fill(e,it,c)));
+  list.forEach(it=>{const p=priceOf(it);if(p!=null)S.prev[it.symbol+'|'+c]=p})};
+const setSt=(k,dot)=>{$('#mkStat').textContent=t[k];$('#mkDot').className=dot||''};
+const showDemo=()=>{render(['USD','EUR','GBP','SAR','XAU','XAG','XPT','XPD'].map(s=>({symbol:s,demo:true,display_unit:S.disp})),S.disp);setSt('demo','dm')};
+const demoOrLoad=reload=>{if(!S.ok)showDemo();if(reload)load()};
+/* ===== الاتصال بالـ API ===== */
+const url=(a,c)=>{const u=new URL(CFG.api);u.searchParams.set('currency',c);u.searchParams.set('asset_type',a);return u.toString()};
+const get=async(a,c,id)=>{const ac=new AbortController(),to=setTimeout(()=>ac.abort(),CFG.timeout);
+  try{const r=await fetch(url(a,c),{headers:{Accept:'application/json'},cache:'no-store',signal:ac.signal});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(id!==S.req)throw new Error('old');if(j.success===false)throw new Error(j.message||'fail');
+    if(Array.isArray(j.data))return j.data;if(Array.isArray(j.quotes))return j.quotes;throw new Error('format')}finally{clearTimeout(to)}};
+const load=async()=>{if(S.busy&&false)return;const id=++S.req,c=S.disp;S.busy=true;
+  try{const r=await Promise.all([get('currency',c,id),get('metal',c,id)]);if(id!==S.req||c!==S.disp)return;
+    const all=[...r[0],...r[1]].filter(i=>priceOf(i)!==null);if(!all.length)throw new Error('empty');
+    render(all,c);S.ok=true;S.last=new Date();$('#mkUpd').textContent=t.upd+fmtT(S.last);setSt('ok','')}
+  catch(e){if(id!==S.req)return;if(!S.ok)showDemo();else setSt('err','off');console.warn('AQX Market:',e)}
+  finally{if(id===S.req)S.busy=false}};
+buildTabs();showDemo();load();
+setInterval(()=>{if(!document.hidden)load()},CFG.every);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+/* ===== شريط البنوك والمحافظ (الشعار الأصلي من assets/pay/ ثم شارة بلون الجهة) ===== */
+const PAY=[['binance','Binance','#F0B90B','#000'],['vodafonecash','Vodafone Cash','#E60000'],['orangecash','Orange Cash','#FF7900'],['etisalatcash','Etisalat Cash','#6BB539'],['wecash','WE Cash','#5B2D8E'],['fawry','Fawry','#FFC400','#000'],['instapay','InstaPay','#7B2D8B'],['post','البريد المصري','#00539B'],['mashreqneo','Mashreq Neo','#FF5A1F'],['cib','CIB','#003B7A'],['paypal','PayPal','#003087'],['payoneer','Payoneer','#FF4800'],['webmoney','WebMoney','#1F5FB5'],['skrill','Skrill','#862165'],['payeer','Payeer','#2F9FDD'],['neteller','Neteller','#83BA3B'],['bankak','Bankak','#C8102E']];
+const payEl=p=>{const a=document.createElement('a');a.className='pay-c';a.href='payments-'+p[0]+'.html';a.dataset.k=p[0];a.dataset.c=p[2];a.dataset.n=p[1];a.setAttribute('aria-label',p[1]);
+  const im=new Image();im.alt=p[1];im.loading='lazy';let s=0;
+  const badge=()=>{const b=document.createElement('span');b.className='pay-b';b.style.background='linear-gradient(135deg,'+p[2]+','+p[2]+'bb)';b.style.color=p[3]||'#fff';b.textContent=p[1];im.replaceWith(b)};
+  im.onerror=()=>{if(s++===0)im.src=CFG.payDir+p[0]+'.png';else badge()};im.src=CFG.payDir+p[0]+'.svg';a.append(im);return a};
+const pg=aria=>{const g=document.createElement('div');g.className='mk-g';if(aria)g.setAttribute('aria-hidden','true');PAY.forEach(p=>g.append(payEl(p)));return g};
+$('#payTrack').append(pg(),pg(true));
+/* ===== تفاعل الضغط: تشقلب ← ممر فضائي ← فتح الصفحة + صوت أنثوي ===== */
+const warp=(col,go)=>{if(matchMedia('(prefers-reduced-motion:reduce)').matches){go();return}
+  const c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;width:100%;height:100%;z-index:150;background:#05020f;opacity:0;transition:opacity .25s';document.body.append(c);c.width=innerWidth;c.height=innerHeight;requestAnimationFrame(()=>c.style.opacity=1);
+  const x=c.getContext('2d'),S2=Array.from({length:240},()=>({a:Math.random()*6.283,r:Math.random()*.3,v:.004+Math.random()*.012})),t0=performance.now();
+  const f=n=>{const p=Math.min((n-t0)/1300,1),cx=c.width/2,cy=c.height/2,M=Math.hypot(cx,cy);x.fillStyle='rgba(5,2,15,.35)';x.fillRect(0,0,c.width,c.height);
+    S2.forEach(s=>{s.r+=s.v*(1+p*8);if(s.r>1.1){s.r=.02;s.a=Math.random()*6.283}const r0=s.r*M,r1=(s.r+.03+p*.12)*M;x.strokeStyle=Math.random()<.5?col:'#fff';x.lineWidth=1+s.r*2;x.beginPath();x.moveTo(cx+Math.cos(s.a)*r0,cy+Math.sin(s.a)*r0);x.lineTo(cx+Math.cos(s.a)*r1,cy+Math.sin(s.a)*r1);x.stroke()});
+    x.fillStyle='rgba(255,255,255,'+Math.max(0,(p-.75)*4)+')';x.fillRect(0,0,c.width,c.height);if(p<1)requestAnimationFrame(f);else go()};requestAnimationFrame(f)};
+let busy=0;
+$('#payTrack').addEventListener('click',e=>{const a=e.target.closest('.pay-c');if(!a)return;e.preventDefault();e.stopPropagation();if(busy)return;busy=1;
+  tn(720);sp(t.open+a.dataset.n);
+  try{a.animate([{transform:'rotateY(0) scale(1)'},{transform:'rotateY(720deg) scale(1.35)'}],{duration:700,easing:'ease-in-out'})}catch(_){}
+  setTimeout(()=>warp(a.dataset.c,()=>{location.href=a.href}),250);setTimeout(()=>{busy=0},3000)});
+/* ===== واتساب: رسالة جاهزة فاخرة + عنوان بديل عند المرور ===== */
+const MA='مرحباً فريق القرماني إكس AQX 👋\n\nيسعدني التواصل معكم.\n\nأرغب في الاستفسار والتواصل بشأن خدمات ومنظومة القرماني إكس AQX، وأتطلع إلى الحصول على المساعدة أو المعلومات المطلوبة من فريقكم المختص.\n\nموضوع التواصل:\n[يرجى كتابة الاستفسار أو الطلب هنا]\n\nشكراً لكم، وأتمنى لكم دوام التوفيق والنجاح.\n\nمع خالص التحية،\nزائر منصة القرماني إكس AQX 💜';
+const ME='Hello Alqurmani X AQX Team 👋\n\nI would like to get in touch regarding Alqurmani X AQX services and ecosystem, and I look forward to help or information from your specialized team.\n\nSubject:\n[Please write your inquiry or request here]\n\nThank you, and I wish you continued success.\n\nBest regards,\nA visitor of the Alqurmani X AQX platform 💜';
+const waU='https://wa.me/'+CFG.wa+'?text='+encodeURIComponent(AR_?MA:ME);
+$$('a[href^="https://wa.me"]').forEach(a=>{a.href=waU;a.target='_blank';a.rel='noopener noreferrer';a.title=t.wa1+' — '+t.wa3;a.setAttribute('aria-label',t.wa1);a.dataset.say=t.waO;
+  if(a.classList.contains('wa')){a.innerHTML=`<span class="wa-ic">💬</span><span class="wa-tx"><b>${E(t.wa1)}</b><small class="s1">${E(t.wa2||TX.en.wa2)}</small><small class="s2">${E(t.wa3)}</small></span><img class="wa-l" src="${CFG.logo}" alt="" referrerpolicy="no-referrer">`;const l=a.querySelector('.wa-l');l.onerror=()=>l.remove()}});
+}catch(err){console.warn('AQX home update:',err)}})();
