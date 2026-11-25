@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#100b25">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh; style-src 'self' 'unsafe-inline'; connect-src 'self' https://vuszqzgldbsscuxdfhdz.supabase.co https://esm.sh; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'">
+<title>AQX Time Exchange — بورصة تبادل الوقت</title>
+<meta name="description" content="بادل وقتك ومهاراتك مع مجتمع AQX. ساعة تقدمها تمنحك رصيدًا تحصل به على ساعة من مهارة أخرى.">
+<style>
+:root{--bg:#0d0a1c;--panel:#17122d;--line:#342952;--purple:#9b7aff;--cyan:#54d6e8;--text:#f7f4ff;--muted:#b8afcc;--green:#54d69a;--red:#ff7888}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#25184a 0,transparent 48%),var(--bg);color:var(--text);font-family:system-ui,Tahoma,Arial,sans-serif;line-height:1.65}
+a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}button{cursor:pointer}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px max(5vw,16px);border-bottom:1px solid var(--line);background:#100b25dd;position:sticky;top:0;z-index:4;backdrop-filter:blur(14px)}
+.logo{font-weight:900;letter-spacing:2px;color:var(--purple);font-size:1.35rem}.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:10px 16px;background:linear-gradient(120deg,#7958dc,#4b9fce);color:white;font-weight:750}.btn.alt{background:#251d3e;border:1px solid #55447b}.btn.ghost{background:transparent;border:1px solid var(--line)}.btn:disabled{opacity:.5;cursor:not-allowed}
+main{width:min(1120px,92vw);margin:0 auto;padding:28px 0 70px}
+.hero{padding:32px 24px;border:1px solid #59438b;border-radius:24px;background:linear-gradient(120deg,#251a46e8,#142e43df);text-align:center;box-shadow:0 20px 70px #0004}
+.kicker{color:var(--cyan);font-weight:800}.hero h1{font-size:clamp(1.8rem,5vw,3rem);line-height:1.2;margin:10px 0}.hero p{color:var(--muted);max-width:720px;margin:0 auto 20px}
+.equation{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}.eq{background:#0f0b20aa;border:1px solid #59438b;border-radius:16px;padding:12px 18px;min-width:145px}.eq b{display:block;font-size:1.35rem;color:var(--cyan)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:24px 0}.toolbar input{flex:1;min-width:190px}
+input,textarea,select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #473963;background:#100c20;color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--cyan)}textarea{min-height:110px;resize:vertical}
+.section{margin:28px 0}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}.section h2{font-size:1.35rem;margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}
+.card{background:linear-gradient(150deg,#1b1532,#15152a);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.card h3{margin:0 0 7px;font-size:1.12rem}.card p{color:var(--muted);margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.meta{display:flex;gap:7px;flex-wrap:wrap;color:#d4cbe8;font-size:.82rem;margin:12px 0}.tag{border:1px solid #51416d;border-radius:30px;padding:3px 9px}
+.categories{display:flex;gap:8px;overflow:auto;padding:2px 0 10px}.categories button{white-space:nowrap;border:1px solid var(--line);border-radius:30px;background:#17122d;color:var(--text);padding:8px 14px}.categories button.active{background:#7655c9;border-color:#a58aff}
+.auth{max-width:560px;margin:24px auto}.auth .tabs{display:flex;gap:8px;margin-bottom:14px}.auth .tabs button{flex:1}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}
+.hidden{display:none!important}.notice{padding:12px 14px;border-radius:12px;background:#211a36;border:1px solid #59438b;color:#ddd3f2;margin:12px 0}.notice.error{border-color:#8d394c;color:#ffc1c9}.notice.ok{border-color:#277e62;color:#b8f3d8}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.stat{padding:16px;border-radius:16px;background:#1a1530;border:1px solid var(--line)}.stat small{color:var(--muted)}.stat strong{display:block;font-size:1.7rem;color:var(--cyan)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row .btn{padding:8px 12px;font-size:.9rem}
+label{display:block;color:#d8cfee;font-size:.9rem;margin-bottom:5px}.field{margin-bottom:12px}
+.muted{color:var(--muted)}.empty{text-align:center;padding:28px;color:var(--muted);border:1px dashed #51416d;border-radius:16px}
+footer{text-align:center;color:#8d83a7;padding:25px;border-top:1px solid var(--line)}
+@media(max-width:620px){header{align-items:flex-start}.nav{justify-content:flex-end}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.hero{padding:26px 16px}}
+</style>
+</head>
+<body>
+<header><a class="logo" href="/">AQX TIME</a><nav class="nav"><a class="btn alt" href="/">الرئيسية</a><button class="btn" id="accountBtn">حسابي</button></nav></header>
+<main>
+<section class="hero">
+ <div class="kicker">AQX TIME EXCHANGE · BORSA تبادل الوقت</div>
+ <h1>وقتك له قيمة… ومهارتك تفتح لك أبوابًا</h1>
+ <p>قدّم ساعة تدريس، واحصل على رصيد ساعة. استخدم رصيدك للحصول على ساعة صيانة أو ترجمة أو استشارة من عضو آخر. لا يلزم أن تتبادل الخدمة مع الشخص نفسه.</p>
+ <div class="equation"><div class="eq"><b>60 دقيقة</b>خدمة تقدمها</div><span>＝</span><div class="eq"><b>1 ساعة</b>رصيد مكتسب</div><span>⇄</span><div class="eq"><b>60 دقيقة</b>خدمة تحصل عليها</div></div>
+</section>
+<div id="message" class="notice hidden" role="status"></div>
+<section id="authPanel" class="auth card">
+ <div class="section-head"><h2>الدخول إلى بورصة الوقت</h2><span class="tag">حساب AQX مطلوب للتبادل</span></div>
+ <div class="tabs"><button class="btn" id="showLogin">تسجيل الدخول</button><button class="btn alt" id="showSignup">إنشاء حساب</button></div>
+ <form id="authForm">
+  <div class="field hidden" id="nameField"><label for="displayName">الاسم المعروض</label><input id="displayName" maxlength="80" autocomplete="name"></div>
+  <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" required autocomplete="email"></div>
+  <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" minlength="8" required autocomplete="current-password"></div>
+  <button class="btn" id="authSubmit" type="submit">دخول</button>
+ </form>
+ <p class="muted">يمكنك تصفح الخدمات دون تسجيل. يلزم تسجيل الدخول لطلب خدمة أو نشر عرض أو إدارة رصيدك.</p>
+</section>
+<section id="memberPanel" class="section hidden">
+ <div class="section-head"><div><h2>مساحة العضو</h2><div class="muted" id="memberEmail"></div></div><button class="btn alt" id="logoutBtn">تسجيل الخروج</button></div>
+ <div class="stats">
+  <div class="stat"><small>رصيدك المتاح</small><strong id="balance">0.00</strong><small>ساعة</small></div>
+  <div class="stat"><small>طلبات التبادل</small><strong id="bookingCount">0</strong></div>
+  <div class="stat"><small>عروضك المنشورة</small><strong id="offerCount">0</strong></div>
+ </div>
+ <div class="section"><div class="section-head"><h2>طلباتك وحجوزاتك</h2><button class="btn alt" id="refreshBtn">تحديث</button></div><div id="bookings" class="grid"></div></div>
+ <div class="section"><div class="section-head"><h2>خدماتك المنشورة</h2><button class="btn" id="newOfferBtn">＋ أضف خدمة</button></div><div id="myOffers" class="grid"></div></div>
+ <div class="section"><h2>سجل رصيد الوقت</h2><div id="ledger"></div></div>
+</section>
+<section class="section" id="market">
+ <div class="section-head"><div><h2>اكتشف المهارات والخدمات</h2><div class="muted">كل ساعة خدمة تساوي ساعة رصيد، وتُحتسب الدقائق بكسورها.</div></div><span class="tag" id="resultCount">جارٍ التحميل…</span></div>
+ <div class="toolbar"><input id="search" type="search" placeholder="ابحث عن تدريس أو صيانة أو ترجمة أو استشارة…"><button class="btn alt" id="searchBtn">بحث</button></div>
+ <div class="categories" id="categories"></div>
+ <div id="offers" class="grid"><div class="empty">جارٍ تحميل العروض…</div></div>
+</section>
+<section id="offerPanel" class="section card hidden">
+ <div class="section-head"><h2>نشر خدمة جديدة</h2><button class="btn ghost" id="closeOffer">إغلاق</button></div>
+ <form id="offerForm">
+  <div class="formgrid">
+   <div class="field"><label for="offerTitle">عنوان الخدمة</label><input id="offerTitle" minlength="5" maxlength="140" required placeholder="مثال: تدريس اللغة الإنجليزية"></div>
+   <div class="field"><label for="offerCategory">التصنيف</label><select id="offerCategory" required></select></div>
+   <div class="field full"><label for="offerDescription">وصف الخدمة وما تتضمنه</label><textarea id="offerDescription" minlength="20" maxlength="5000" required></textarea></div>
+   <div class="field"><label for="duration">مدة الجلسة</label><select id="duration"><option value="60">60 دقيقة — 1 ساعة</option><option value="30">30 دقيقة — 0.5 ساعة</option><option value="90">90 دقيقة — 1.5 ساعة</option><option value="120">120 دقيقة — ساعتان</option><option value="45">45 دقيقة — 0.75 ساعة</option><option value="15">15 دقيقة — 0.25 ساعة</option></select></div>
+   <div class="field"><label for="delivery">طريقة تقديم الخدمة</label><select id="delivery"><option value="online">عن بُعد</option><option value="in_person">حضوري</option><option value="both">الاثنان</option></select></div>
+   <div class="field"><label for="city">المدينة (اختياري)</label><input id="city" maxlength="100"></div>
+   <div class="field"><label for="languages">اللغات (افصل بينها بفاصلة)</label><input id="languages" maxlength="150" placeholder="العربية، الإنجليزية"></div>
+  </div>
+  <button class="btn" type="submit">نشر الخدمة</button>
+ </form>
+</section>
+</main>
+<footer>© AQX Time Exchange — اقتصاد تعاوني يقوم على تبادل الوقت والمهارات.</footer>
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+const SUPABASE_URL="https://vuszqzgldbsscuxdfhdz.supabase.co";
+const SUPABASE_KEY="sb_publishable_cI7C0sL9M4OLvsa-JGAAFQ_KfqlkI7X";
+const ENGINE=SUPABASE_URL+"/functions/v1/aqx-engine";
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let session=null,categories=[],activeCategory="",authMode="login",catalog=[];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function msg(t,type=""){const e=$("message");e.textContent=t;e.className="notice"+(type?" "+type:"");e.classList.remove("hidden");}
+function clearMsg(){$("message").classList.add("hidden")}
+async function api(path,method="GET",body){if(!session?.access_token)throw new Error("سجّل الدخول أولاً.");const r=await fetch(ENGINE+path,{method,headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw new Error(d.message||d.error||"تعذر تنفيذ العملية.");return d;}
+function fmt(n){return Number(n||0).toLocaleString("ar-EG",{maximumFractionDigits:2});}
+async function loadCatalog(){try{const q=$("search").value.trim();const path="/time-exchange/catalog?limit=48"+(activeCategory?"&category_id="+encodeURIComponent(activeCategory):"")+(q?"&q="+encodeURIComponent(q):"");const r=await fetch(ENGINE+path,{headers:{"apikey":SUPABASE_KEY}});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||"تعذر تحميل السوق");categories=d.categories||[];catalog=d.offers||[];renderCategories();renderOffers();$("resultCount").textContent=fmt(d.count||catalog.length)+" خدمة";}catch(e){$("offers").innerHTML='<div class="empty">تعذر تحميل الخدمات الآن. '+esc(e.message)+'</div>';}}
+function renderCategories(){$("categories").innerHTML='<button class="'+(!activeCategory?"active":"")+'" data-category="">كل المهارات</button>'+categories.map(c=>'<button class="'+(activeCategory===c.id?"active":"")+'" data-category="'+c.id+'">'+esc(c.name)+'</button>').join("");$("offerCategory").innerHTML=categories.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join("");}
+function renderOffers(){if(!catalog.length){$("offers").innerHTML='<div class="empty">لا توجد خدمات مطابقة حاليًا. كن أول من ينشر مهارته!</div>';return;}$("offers").innerHTML=catalog.map(o=>'<article class="card"><div class="meta"><span class="tag">'+esc(o.category?.name||"خدمة")+'</span><span class="tag">'+esc(o.delivery_mode==="online"?"عن بُعد":o.delivery_mode==="in_person"?"حضوري":"عن بُعد أو حضوري")+'</span></div><h3>'+esc(o.title)+'</h3><p>'+esc(o.description)+'</p><div class="meta"><span>⏱ '+fmt(o.duration_minutes)+' دقيقة</span><span>◈ '+fmt(o.duration_minutes/60)+' ساعة رصيد</span>'+(o.city?'<span>📍 '+esc(o.city)+'</span>':'')+'</div><div class="row"><button class="btn" data-book="'+o.id+'">اطلب الخدمة</button></div></article>').join("");}
+async function refreshDashboard(){if(!session)return;try{const d=await api("/time-exchange/dashboard");$("balance").textContent=fmt(d.balance);$("bookingCount").textContent=fmt(d.bookings.length);$("offerCount").textContent=fmt(d.offers.length);$("bookings").innerHTML=d.bookings.length?d.bookings.map(b=>{const mineProvider=b.provider_id===session.user.id;const other=mineProvider?"أنت مقدم الخدمة":"أنت طالب الخدمة";let actions="";if(mineProvider&&b.status==="requested")actions='<button class="btn" data-action="accept" data-id="'+b.id+'">قبول</button><button class="btn alt" data-action="decline" data-id="'+b.id+'">رفض</button>';if(mineProvider&&b.status==="accepted")actions='<button class="btn" data-action="start" data-id="'+b.id+'">بدء الخدمة</button>';if(["in_progress","awaiting_confirmation"].includes(b.status))actions='<button class="btn" data-action="confirm" data-id="'+b.id+'">تأكيد الإنجاز</button><button class="btn alt" data-dispute="'+b.id+'">فتح نزاع</button>';if(["requested","accepted"].includes(b.status))actions+='<button class="btn alt" data-action="cancel" data-id="'+b.id+'">إلغاء</button>';if(b.status==="completed")actions='<span class="tag">مكتملة</span><button class="btn alt" data-review="'+b.id+'" data-reviewee="'+(mineProvider?b.requester_id:b.provider_id)+'">تقييم</button>';return '<article class="card"><h3>طلب تبادل</h3><div class="meta"><span class="tag">'+esc(b.status)+'</span><span>'+other+'</span><span>'+fmt(b.credits)+' ساعة</span></div><p>'+esc(b.notes||"لا توجد ملاحظات")+'</p><div class="row">'+actions+'</div></article>';}).join(""):'<div class="empty">لا توجد حجوزات حتى الآن.</div>';$("myOffers").innerHTML=d.offers.length?d.offers.map(o=>'<article class="card"><h3>'+esc(o.title)+'</h3><div class="meta"><span class="tag">'+esc(o.status)+'</span><span>'+fmt(o.duration_minutes)+' دقيقة</span></div><div class="row"><button class="btn alt" data-offer-status="'+o.id+'" data-status="'+(o.status==="active"?"paused":"active")+'">'+(o.status==="active"?"إيقاف مؤقت":"إعادة نشر")+'</button></div></article>').join(""):'<div class="empty">لم تنشر أي خدمة بعد.</div>';$("ledger").innerHTML=d.ledger.length?d.ledger.map(x=>'<div class="row" style="justify-content:space-between;padding:10px;border-bottom:1px solid var(--line)"><span>'+esc(x.description||x.entry_type)+'</span><b style="color:'+(Number(x.amount)>=0?"var(--green)":"var(--red)")+'">'+(Number(x.amount)>0?"+":"")+fmt(x.amount)+' ساعة</b></div>').join(""):'<div class="empty">سيظهر سجل الرصيد بعد إتمام أول عملية تبادل.</div>';}catch(e){msg(e.message,"error");}}
+async function syncAuth(s){session=s;$("authPanel").classList.toggle("hidden",!!s);$("memberPanel").classList.toggle("hidden",!s);if(s){$("memberEmail").textContent=s.user.email||"عضو AQX";await refreshDashboard();}else{$("balance").textContent="0.00";}}
+$("showLogin").onclick=()=>{authMode="login";$("nameField").classList.add("hidden");$("authSubmit").textContent="دخول";$("password").autocomplete="current-password";$("showLogin").className="btn";$("showSignup").className="btn alt";};
+$("showSignup").onclick=()=>{authMode="signup";$("nameField").classList.remove("hidden");$("authSubmit").textContent="إنشاء حساب";$("password").autocomplete="new-password";$("showSignup").className="btn";$("showLogin").className="btn alt";};
+$("authForm").onsubmit=async e=>{e.preventDefault();clearMsg();const email=$("email").value.trim(),password=$("password").value;try{let r;if(authMode==="login")r=await sb.auth.signInWithPassword({email,password});else r=await sb.auth.signUp({email,password,options:{data:{display_name:$("displayName").value.trim()}}});if(r.error)throw r.error;if(r.data.session)await syncAuth(r.data.session);else msg("تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتأكيده ثم سجّل الدخول.","ok");}catch(e){msg(e.message||"تعذر تسجيل الدخول.","error");}};
+$("logoutBtn").onclick=async()=>{await sb.auth.signOut();await syncAuth(null);msg("تم تسجيل الخروج.","ok");};
+$("accountBtn").onclick=()=>{(session?$("memberPanel"):$("authPanel")).scrollIntoView({behavior:"smooth"});};
+$("refreshBtn").onclick=refreshDashboard;$("searchBtn").onclick=loadCatalog;$("search").addEventListener("keydown",e=>{if(e.key==="Enter")loadCatalog();});
+$("categories").onclick=e=>{const b=e.target.closest("[data-category]");if(!b)return;activeCategory=b.dataset.category;renderCategories();loadCatalog();};
+$("offers").onclick=async e=>{const b=e.target.closest("[data-book]");if(!b)return;if(!session){$("authPanel").scrollIntoView({behavior:"smooth"});msg("سجّل الدخول لطلب الخدمة.");return;}const offer=catalog.find(x=>x.id===b.dataset.book);if(!offer)return;if(!confirm("طلب "+offer.duration_minutes+" دقيقة مقابل "+fmt(offer.duration_minutes/60)+" ساعة رصيد؟"))return;try{await api("/time-exchange/bookings","POST",{offer_id:offer.id});msg("تم إرسال طلبك. سيظهر في مساحة العضو بعد التحديث.","ok");await refreshDashboard();}catch(e){msg(e.message,"error");}};
+$("newOfferBtn").onclick=()=>{$("offerPanel").classList.remove("hidden");$("offerPanel").scrollIntoView({behavior:"smooth"});};$("closeOffer").onclick=()=>$("offerPanel").classList.add("hidden");
+$("offerForm").onsubmit=async e=>{e.preventDefault();try{const languages=$("languages").value.split(",").map(x=>x.trim()).filter(Boolean);await api("/time-exchange/offers","POST",{title:$("offerTitle").value,description:$("offerDescription").value,category_id:$("offerCategory").value,duration_minutes:Number($("duration").value),delivery_mode:$("delivery").value,city:$("city").value,country_code:"EG",languages});$("offerForm").reset();$("offerPanel").classList.add("hidden");msg("تم نشر خدمتك في بورصة الوقت.","ok");await loadCatalog();await refreshDashboard();}catch(e){msg(e.message,"error");}};
+$("bookings").onclick=async e=>{const b=e.target.closest("[data-action],[data-dispute],[data-review]");if(!b)return;try{if(b.dataset.action){await api("/time-exchange/bookings/"+b.dataset.id+"/action","POST",{action:b.dataset.action});msg("تم تحديث حالة الطلب.","ok");await refreshDashboard();await loadCatalog();}else if(b.dataset.dispute){const reason=prompt("اكتب سبب النزاع (10 أحرف على الأقل):");if(!reason)return;await api("/time-exchange/disputes","POST",{booking_id:b.dataset.dispute,reason});msg("تم تسجيل النزاع للمراجعة.","ok");await refreshDashboard();}else if(b.dataset.review){const rating=Number(prompt("قيّم التجربة من 1 إلى 5:","5"));if(!Number.isInteger(rating)||rating<1||rating>5)return;const comment=prompt("تعليقك (اختياري):")||"";await api("/time-exchange/reviews","POST",{booking_id:b.dataset.review,reviewee_id:b.dataset.reviewee,rating,comment});msg("شكرًا لك، تم إرسال تقييمك.","ok");}}catch(e){msg(e.message,"error");}};
+$("myOffers").onclick=async e=>{const b=e.target.closest("[data-offer-status]");if(!b)return;try{await api("/time-exchange/offers/"+b.dataset.offerStatus+"/status","POST",{status:b.dataset.status});await refreshDashboard();await loadCatalog();msg("تم تحديث حالة الخدمة.","ok");}catch(e){msg(e.message,"error");}};
+sb.auth.onAuthStateChange((_event,s)=>{session=s;if(s)refreshDashboard();$("authPanel").classList.toggle("hidden",!!s);$("memberPanel").classList.toggle("hidden",!s);});
+const initial=await sb.auth.getSession();await syncAuth(initial.data.session);await loadCatalog();
+</script>
+</body></html>
